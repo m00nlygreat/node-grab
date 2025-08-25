@@ -94,7 +94,12 @@
         const top = (r.top + window.scrollY) * scale;
         const width = r.width * scale;
         const height = r.height * scale;
-        chrome.runtime.sendMessage({ action: 'capture' }, ({ image }) => {
+        chrome.runtime.sendMessage({
+          action: 'capture',
+          width: r.width,
+          height: r.height,
+          devicePixelRatio: scale
+        }, ({ image }) => {
           wrapper.style.border = originalBorder;
           const img = new Image();
           img.onload = function() {
