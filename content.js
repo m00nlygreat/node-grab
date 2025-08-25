@@ -73,7 +73,7 @@
     const rect = elem.getBoundingClientRect();
 
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = `position:fixed; top:${rect.top}px; left:${rect.left}px; width:${rect.width}px; height:${rect.height}px; resize:both; overflow:auto; border:2px dashed #3f51b5; background:white; z-index:2147483647;`;
+    wrapper.style.cssText = `position:absolute; top:${rect.top + window.scrollY}px; left:${rect.left + window.scrollX}px; width:${rect.width}px; height:${rect.height}px; resize:both; overflow:auto; border:2px dashed #3f51b5; background:white; z-index:2147483647;`;
     document.body.appendChild(wrapper);
     wrapper.appendChild(elem);
 
