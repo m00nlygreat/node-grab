@@ -89,10 +89,12 @@
       const originalOutline = wrapper.style.outline;
       const originalBoxShadow = wrapper.style.boxShadow;
       const hadFocus = wrapper.matches(':focus');
+      const originalPanelDisplay = panel.style.display;
       wrapper.style.border = 'none';
       wrapper.style.outline = 'none';
       wrapper.style.boxShadow = 'none';
       if (hadFocus) wrapper.blur();
+      panel.style.display = 'none';
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const r = wrapper.getBoundingClientRect();
@@ -106,6 +108,7 @@
             wrapper.style.outline = originalOutline;
             wrapper.style.boxShadow = originalBoxShadow;
             if (hadFocus) wrapper.focus();
+            panel.style.display = originalPanelDisplay;
             if (!response || chrome.runtime.lastError) {
               console.error('Capture failed', chrome.runtime.lastError);
               return;
