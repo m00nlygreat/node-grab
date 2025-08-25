@@ -87,7 +87,7 @@
     document.getElementById('ngCapture').onclick = () => {
       const originalBorder = wrapper.style.border;
       const originalOutline = wrapper.style.outline;
-      const hadFocus = document.activeElement === wrapper;
+      const hadFocus = wrapper.matches(':focus');
       wrapper.style.border = 'none';
       wrapper.style.outline = 'none';
       if (hadFocus) wrapper.blur();
@@ -98,9 +98,14 @@
         const top = (r.top + window.scrollY) * scale;
         const width = r.width * scale;
         const height = r.height * scale;
-        chrome.runtime.sendMessage({ action: 'capture' }, ({ image }) => {
+        chrome.runtime.sendMessage({ action: 'capture' }, (response) => {
           wrapper.style.border = originalBorder;
           wrapper.style.outline = originalOutline;
+          if (hadFocus) wrapper.focus();
+          if (!response || chrome.runtime.lastError) {
+            console.error('Capture failed', chrome.runtime.lastError);
+            return;
+          }
           const img = new Image();
           img.onload = function() {
             const canvas = document.createElement('canvas');
@@ -112,9 +117,11 @@
             const a = document.createElement('a');
             a.href = url;
             a.download = 'capture.png';
+            document.body.appendChild(a);
             a.click();
+            a.remove();
           };
-          img.src = image;
+          img.src = response.image;
         });
       });
     };
