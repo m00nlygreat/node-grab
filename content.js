@@ -56,6 +56,8 @@
     panel.innerHTML = `Width: <input type="number" id="ngWidth" value="${Math.round(rect.width)}" style="width:60px"> px
     Height: <input type="number" id="ngHeight" value="${Math.round(rect.height)}" style="width:60px"> px
     <button id="ngApply">Apply</button>
+    <button id="ngMaxW">Max Width</button>
+    <button id="ngMaxH">Max Height</button>
     <button id="ngCapture">Capture</button>`;
     document.body.appendChild(panel);
 
@@ -64,6 +66,21 @@
       const h = parseInt(document.getElementById('ngHeight').value, 10);
       if (!isNaN(w)) wrapper.style.width = w + 'px';
       if (!isNaN(h)) wrapper.style.height = h + 'px';
+      wrapper.style.overflow = 'auto';
+    };
+
+    document.getElementById('ngMaxW').onclick = () => {
+      const w = elem.scrollWidth;
+      wrapper.style.width = w + 'px';
+      wrapper.style.overflow = 'auto';
+      document.getElementById('ngWidth').value = w;
+    };
+
+    document.getElementById('ngMaxH').onclick = () => {
+      const h = elem.scrollHeight;
+      wrapper.style.height = h + 'px';
+      wrapper.style.overflow = 'auto';
+      document.getElementById('ngHeight').value = h;
     };
 
     document.getElementById('ngCapture').onclick = () => {
