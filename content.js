@@ -69,23 +69,25 @@
     document.getElementById('ngCapture').onclick = () => {
       const originalBorder = wrapper.style.border;
       wrapper.style.border = 'none';
-      const r = wrapper.getBoundingClientRect();
-      chrome.runtime.sendMessage({ action: 'capture' }, ({ image }) => {
-        wrapper.style.border = originalBorder;
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          canvas.width = r.width;
-          canvas.height = r.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, r.left, r.top, r.width, r.height, 0, 0, r.width, r.height);
-          const url = canvas.toDataURL('image/png');
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'capture.png';
-          a.click();
-        };
-        img.src = image;
+      requestAnimationFrame(() => {
+        const r = wrapper.getBoundingClientRect();
+        chrome.runtime.sendMessage({ action: 'capture' }, ({ image }) => {
+          wrapper.style.border = originalBorder;
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = r.width;
+            canvas.height = r.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, r.left, r.top, r.width, r.height, 0, 0, r.width, r.height);
+            const url = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'capture.png';
+            a.click();
+          };
+          img.src = image;
+        });
       });
     };
   }
