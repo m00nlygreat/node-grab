@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Node Grab",
+  "version": "1.0",
+  "description": "Select a DOM node, isolate it, resize and capture.",
+  "permissions": ["activeTab", "scripting", "tabs"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Node Grab"
+  }
+}
