@@ -124,27 +124,94 @@
       if (hadFocus) wrapper.blur();
       panel.style.display = 'none';
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
+        requestAnimationFrame(async () => {
           const r = wrapper.getBoundingClientRect();
           const scale = window.devicePixelRatio;
           const left = (r.left + window.scrollX) * scale;
-          const top = (r.top + window.scrollY) * scale;
           const width = r.width * scale;
-          const height = r.height * scale;
-          chrome.runtime.sendMessage({ action: 'capture' }, (response) => {
-            wrapper.style.border = originalBorder;
-            wrapper.style.outline = originalOutline;
-            wrapper.style.boxShadow = originalBoxShadow;
-            wrapper.style.overflow = originalOverflow;
-            if (hadFocus) wrapper.focus();
-            panel.style.display = originalPanelDisplay;
-            restoreOverflow();
+          const totalHeightCss = elem.scrollHeight;
+          const totalHeight = totalHeightCss * scale;
+          const originalScrollY = window.scrollY;
+
+          async function captureVisible() {
+            return new Promise((resolve) => {
+              chrome.runtime.sendMessage({ action: 'capture' }, (response) => {
+                resolve(response);
+              });
+            });
+          }
+
+          function loadImage(src) {
+            return new Promise((resolve) => {
+              const im = new Image();
+              im.onload = () => resolve(im);
+              im.src = src;
+            });
+          }
+
+          if (elem.scrollHeight > window.innerHeight) {
+            const segments = Math.ceil(totalHeightCss / window.innerHeight);
+            const images = [];
+            for (let i = 0; i < segments; i++) {
+              const desiredStart = r.top + originalScrollY + i * window.innerHeight;
+              const maxScroll = r.top + originalScrollY + totalHeightCss - window.innerHeight;
+              const scrollY = Math.min(desiredStart, maxScroll);
+              window.scrollTo(0, scrollY);
+              await new Promise((res) => setTimeout(res, 100));
+              const response = await captureVisible();
+              if (!response || chrome.runtime.lastError) {
+                console.error('Capture failed', chrome.runtime.lastError);
+                break;
+              }
+              images.push({
+                src: response.image,
+                top: desiredStart - scrollY,
+                height: Math.min(
+                  window.innerHeight - (desiredStart - scrollY),
+                  totalHeightCss - i * window.innerHeight
+                ),
+              });
+            }
+            window.scrollTo(0, originalScrollY);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = totalHeight;
+            const ctx = canvas.getContext('2d');
+
+            for (let i = 0; i < images.length; i++) {
+              const seg = images[i];
+              const img = await loadImage(seg.src);
+              const srcY = seg.top * scale;
+              const srcH = seg.height * scale;
+              ctx.drawImage(
+                img,
+                left,
+                srcY,
+                width,
+                srcH,
+                0,
+                i * window.innerHeight * scale,
+                width,
+                srcH
+              );
+            }
+
+            const url = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'capture.png';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          } else {
+            const top = (r.top + originalScrollY) * scale;
+            const height = r.height * scale;
+            const response = await captureVisible();
             if (!response || chrome.runtime.lastError) {
               console.error('Capture failed', chrome.runtime.lastError);
-              return;
-            }
-            const img = new Image();
-            img.onload = function() {
+            } else {
+              const img = await loadImage(response.image);
               const canvas = document.createElement('canvas');
               canvas.width = width;
               canvas.height = height;
@@ -157,9 +224,16 @@
               document.body.appendChild(a);
               a.click();
               a.remove();
-            };
-            img.src = response.image;
-          });
+            }
+          }
+
+          wrapper.style.border = originalBorder;
+          wrapper.style.outline = originalOutline;
+          wrapper.style.boxShadow = originalBoxShadow;
+          wrapper.style.overflow = originalOverflow;
+          if (hadFocus) wrapper.focus();
+          panel.style.display = originalPanelDisplay;
+          restoreOverflow();
         });
       });
     };
