@@ -71,15 +71,20 @@
       wrapper.style.border = 'none';
       requestAnimationFrame(() => {
         const r = wrapper.getBoundingClientRect();
+        const scale = window.devicePixelRatio;
+        const left = (r.left + window.scrollX) * scale;
+        const top = (r.top + window.scrollY) * scale;
+        const width = r.width * scale;
+        const height = r.height * scale;
         chrome.runtime.sendMessage({ action: 'capture' }, ({ image }) => {
           wrapper.style.border = originalBorder;
           const img = new Image();
           img.onload = function() {
             const canvas = document.createElement('canvas');
-            canvas.width = r.width;
-            canvas.height = r.height;
+            canvas.width = width;
+            canvas.height = height;
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, r.left, r.top, r.width, r.height, 0, 0, r.width, r.height);
+            ctx.drawImage(img, left, top, width, height, 0, 0, width, height);
             const url = canvas.toDataURL('image/png');
             const a = document.createElement('a');
             a.href = url;
