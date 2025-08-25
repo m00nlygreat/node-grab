@@ -88,11 +88,13 @@
       const originalBorder = wrapper.style.border;
       const originalOutline = wrapper.style.outline;
       const originalBoxShadow = wrapper.style.boxShadow;
+      const originalOverflow = wrapper.style.overflow;
       const hadFocus = wrapper.matches(':focus');
       const originalPanelDisplay = panel.style.display;
       wrapper.style.border = 'none';
       wrapper.style.outline = 'none';
       wrapper.style.boxShadow = 'none';
+      wrapper.style.overflow = 'hidden';
       if (hadFocus) wrapper.blur();
       panel.style.display = 'none';
       requestAnimationFrame(() => {
@@ -107,6 +109,7 @@
             wrapper.style.border = originalBorder;
             wrapper.style.outline = originalOutline;
             wrapper.style.boxShadow = originalBoxShadow;
+            wrapper.style.overflow = originalOverflow;
             if (hadFocus) wrapper.focus();
             panel.style.display = originalPanelDisplay;
             if (!response || chrome.runtime.lastError) {
