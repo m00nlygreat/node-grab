@@ -86,7 +86,11 @@
 
     document.getElementById('ngCapture').onclick = () => {
       const originalBorder = wrapper.style.border;
+      const originalOutline = wrapper.style.outline;
+      const hadFocus = document.activeElement === wrapper;
       wrapper.style.border = 'none';
+      wrapper.style.outline = 'none';
+      if (hadFocus) wrapper.blur();
       requestAnimationFrame(() => {
         const r = wrapper.getBoundingClientRect();
         const scale = window.devicePixelRatio;
@@ -96,6 +100,7 @@
         const height = r.height * scale;
         chrome.runtime.sendMessage({ action: 'capture' }, ({ image }) => {
           wrapper.style.border = originalBorder;
+          wrapper.style.outline = originalOutline;
           const img = new Image();
           img.onload = function() {
             const canvas = document.createElement('canvas');
