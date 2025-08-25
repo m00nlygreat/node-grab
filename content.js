@@ -53,12 +53,13 @@
 
     const panel = document.createElement('div');
     panel.style.cssText = 'position:fixed; top:10px; right:10px; z-index:2147483647; background:white; padding:8px; border:1px solid #ccc; font-family:sans-serif;';
-    panel.innerHTML = `Width: <input type="number" id="ngWidth" value="${Math.round(rect.width)}" style="width:60px"> px
-    Height: <input type="number" id="ngHeight" value="${Math.round(rect.height)}" style="width:60px"> px
-    <button id="ngApply">Apply</button>
-    <button id="ngMaxW">Max Width</button>
-    <button id="ngMaxH">Max Height</button>
-    <button id="ngCapture">Capture</button>`;
+      panel.innerHTML = `
+        Width: <input type="number" id="ngWidth" value="${Math.round(rect.width)}" style="width:60px"> px
+        <button id="ngMaxW">Max Width</button><br>
+        Height: <input type="number" id="ngHeight" value="${Math.round(rect.height)}" style="width:60px"> px
+        <button id="ngMaxH">Max Height</button><br>
+        <button id="ngApply">Apply</button>
+        <button id="ngCapture">Capture</button>`;
     document.body.appendChild(panel);
 
     document.getElementById('ngApply').onclick = () => {
