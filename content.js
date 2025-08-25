@@ -67,8 +67,11 @@
     };
 
     document.getElementById('ngCapture').onclick = () => {
+      const originalBorder = wrapper.style.border;
+      wrapper.style.border = 'none';
       const r = wrapper.getBoundingClientRect();
       chrome.runtime.sendMessage({ action: 'capture' }, ({ image }) => {
+        wrapper.style.border = originalBorder;
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
