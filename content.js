@@ -8,8 +8,34 @@
   `;
   document.head.appendChild(style);
 
+  const root = document.documentElement;
+  const body = document.body;
+  const originalRootOverflow = root.style.overflow;
+  const originalBodyOverflow = body.style.overflow;
+  const originalRootOverflowPriority = root.style.getPropertyPriority('overflow');
+  const originalBodyOverflowPriority = body.style.getPropertyPriority('overflow');
+
+  function applyAutoOverflow() {
+    root.style.setProperty('overflow', 'auto', 'important');
+    body.style.setProperty('overflow', 'auto', 'important');
+  }
+
+  function restoreOverflow() {
+    if (originalRootOverflow) {
+      root.style.setProperty('overflow', originalRootOverflow, originalRootOverflowPriority);
+    } else {
+      root.style.removeProperty('overflow');
+    }
+    if (originalBodyOverflow) {
+      body.style.setProperty('overflow', originalBodyOverflow, originalBodyOverflowPriority);
+    } else {
+      body.style.removeProperty('overflow');
+    }
+  }
+
   function startSelection() {
     let current;
+    applyAutoOverflow();
 
     function mousemove(e) {
       if (current) current.classList.remove('node-grab-hover');
@@ -47,7 +73,7 @@
     const rect = elem.getBoundingClientRect();
 
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = `position:fixed; top:${rect.top}px; left:${rect.left}px; width:${rect.width}px; height:${rect.height}px; resize:both; overflow:auto; border:2px dashed #3f51b5; background:white; z-index:2147483647;`;
+    wrapper.style.cssText = `position:absolute; top:${rect.top + window.scrollY}px; left:${rect.left + window.scrollX}px; width:${rect.width}px; height:${rect.height}px; resize:both; overflow:auto; border:2px dashed #3f51b5; background:white; z-index:2147483647;`;
     document.body.appendChild(wrapper);
     wrapper.appendChild(elem);
 
@@ -112,6 +138,7 @@
             wrapper.style.overflow = originalOverflow;
             if (hadFocus) wrapper.focus();
             panel.style.display = originalPanelDisplay;
+            restoreOverflow();
             if (!response || chrome.runtime.lastError) {
               console.error('Capture failed', chrome.runtime.lastError);
               return;
